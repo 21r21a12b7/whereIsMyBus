@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Info Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden; /* Prevent body overflow */
+        }
+
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Prevent container overflow */
+        }
+
+        /* Responsive adjustments */
+        @media only screen and (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+        }
+
+        /* First-div styles */
+        #first-div {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5%;
+            padding-bottom: 5%;
+            border-bottom: 1.5px solid #000;
+        }
+
+        #backButton {
+            height: 25px;
+            width: 25px;
+            margin-left: 1%;
+        }
+
+        #first-div div {
+            flex-grow: 1;
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+            margin-right: 4%;
+        }
+
+        /* Driver info styles */
+        #drivers-info {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center driver boxes */
+        }
+
+        .driver-box {
+            background-color: #ffffff;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 85%;
+        }
+
+        .driver-name {
+            font-size: 19px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .driver-details {
+            margin-bottom: 10px;
+            font-size: 17px; /* Increase the font size by 2px */
+        }
+
+        .phone-number-label {
+            font-size: 17px; /* Set the font size to 17px */
+        }
+
+        .phone-number {
+            font-size: 1rem; /* Updated font size */
+            color: #007bff;
+            text-decoration: none;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="first-div">
+            <img id="backButton" src="img/backArrow_street.svg" alt="Back" onclick="window.history.back();">
+            <div>Bus Drivers</div>
+        </div>
+        <div id="drivers-info">
+            <div class="driver-box">
+                <div class="driver-name">Route 1 Driver</div>
+                <div class="driver-details">Name: Laxman Reddy</div>
+                <div><span class="phone-number-label">Phone Number :</span> <a href="tel:9701788665" class="phone-number">9701788665</a></div>
+            </div>
+            <div class="driver-box">
+                <div class="driver-name">Route 2 Driver</div>
+                <div class="driver-details">Name: Venkatesh</div>
+                <div><span class="phone-number-label">Phone Number :</span> <a href="tel:9951926864" class="phone-number">9951926864</a></div>
+            </div>
+            <div class="driver-box">
+                <div class="driver-name">Route 9 Driver</div>
+                <div class="driver-details">Name: Parameshwara Rao</div>
+                <div><span class="phone-number-label">Phone Number :</span> <a href="tel:7671982513" class="phone-number">7671982513</a></div>
+            </div>
+            <div class="driver-box">
+                <div class="driver-name">Route 21 Driver</div>
+                <div class="driver-details">Name: Lakkiram Nayak</div>
+                <div><span class="phone-number-label">Phone Number :</span> <a href="tel:9912939397" class="phone-number">9912939397</a></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Function to redirect to the given route
+        function redirectToRoute(route) {
+            window.location.href = route;
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        window.onload = function () {
+            const cookieName = "busDetails";
+            const busDetails = getCookie(cookieName);
+
+            if (!busDetails) {
+                // Redirect to index.html if cookie is not present
+                window.location.href = "index.html";
+            }
+        };
+    </script>
+</body>
+</html>

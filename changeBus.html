@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>All Bus Routes</title>
+    <style>
+        /* Global styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            /* Prevent body overflow */
+        }
+
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            /* Prevent container overflow */
+        }
+
+        /* Responsive adjustments */
+        @media only screen and (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            .bus-route-button {
+                font-size: 16px;
+                padding: 10px;
+            }
+        }
+
+        /* First-div styles */
+        #first-div {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5%;
+            padding-bottom: 5%;
+            border-bottom: 1.5px solid #000;
+        }
+
+        #backButton {
+            height: 25px;
+            width: 25px;
+            margin-left: 1%;
+        }
+
+        #infoButton {
+            height: 24px;
+            width: 24px;
+            margin-right: 1%;
+        }
+
+        #first-div div {
+            flex-grow: 1;
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+            margin-left: 2%;
+        }
+
+        /* Routes div styles */
+        #routes {
+            margin-top: 20px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            /* Prevent overflow from routes div */
+        }
+
+        .bus-route-button {
+            margin-bottom: 10px;
+            max-width: 100%;
+            /* Ensure images do not exceed their container */
+            max-height: 100%;
+            /* Ensure images do not exceed their container */
+            /* cursor: pointer; */
+            width: auto;
+            /* Adjust width as per design */
+            height: auto;
+            /* Adjust height as per design */
+        }
+    </style>
+    <script>
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        window.onload = function () {
+            const cookieName = "busDetails";
+            const busDetails = getCookie(cookieName);
+
+            if (!busDetails) {
+                // Redirect to index.html if cookie is not present
+                window.location.href = "index.html";
+            }
+        };
+
+        // Function to redirect to the given route
+        function redirectToRoute(route) {
+            window.location.href = route;
+        }
+
+        function openInfo() {
+            window.location.href = "info.html";
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div id="first-div">
+            <img id="backButton" src="img/backArrow_street.svg" alt="Back" onclick="window.history.back();">
+            <div>All Bus Routes</div>
+            <img id="infoButton" src="img/contacts.svg" alt="Info" onclick="openInfo();">
+        </div>
+
+        <!-- Routes div with image buttons -->
+        <div id="routes">
+            <img class="bus-route-button" src="route1/img/changeBus.svg" alt="Route 1" onclick="redirectToRoute('route1');">
+            <img class="bus-route-button" src="route2/img/changeBus.svg" alt="Route 2" onclick="redirectToRoute('route2');">
+            <img class="bus-route-button" src="route9/img/changeBus.svg" alt="Route 9" onclick="redirectToRoute('route9');">
+            <img class="bus-route-button" src="route21/img/changeBus.svg" alt="Route 21" onclick="redirectToRoute('route21');">
+        </div>
+    </div>
+</body>
+
+</html>

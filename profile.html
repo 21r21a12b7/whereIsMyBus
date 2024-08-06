@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            overflow-x: hidden;
+            /* Hide horizontal overflow */
+            overflow-y: auto;
+            /* Enable vertical scrolling */
+        }
+
+
+        #zero-div {
+            /* margin-top: 5%; */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            background-color: #fff;
+
+        }
+
+        #walkthrough-text {
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        #walkthrough-video {
+            background: no-repeat center center;
+            background-size: contain;
+            border: none;
+            height: 28px;
+            width: 28px;
+        }
+
+        #fifth-div {
+            margin-top: 10%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            background-color: #fff;
+        }
+
+        #query-text {
+            font-size: 16px;
+            margin-right: 10px;
+            /* Add some spacing between the text and the button */
+        }
+
+        #mail-image {
+            background: no-repeat center center;
+            background-size: contain;
+            border: none;
+            height: 28px;
+            width: 28px;
+        }
+
+
+        #first-div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 60px;
+            border-bottom: 1px solid #000000;
+            background-color: #fff;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        #back-button {
+            position: absolute;
+            left: 20px;
+            height: 25px;
+            width: 25px;
+            background: no-repeat center center;
+            background-size: contain;
+            border: none;
+        }
+
+        #profile-text {
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        #second-div {
+            padding: 20px;
+            background-color: #fff;
+            border-top: 1px solid #000000;
+            /* border-bottom: 1px solid #ccc; */
+            text-align: center;
+        }
+
+        #select-bus-text {
+            margin-top: 5%;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        #bus-route-dropdown {
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        #third-div {
+            margin-top: 10%;
+            padding: 20px;
+            background-color: #fff;
+            /* border-bottom: 1px solid #ccc; */
+            text-align: center;
+        }
+
+        #enter-busstop-details {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        #location-coordinates {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        #location-coordinates input[type="text"] {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            width: 200px;
+            box-sizing: border-box;
+        }
+
+        #location-coordinates img {
+            height: 28px;
+            width: 28px;
+        }
+
+        #fourth-div {
+            margin-top: 10%;
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: #fff;
+            margin-left: 10%;
+            margin-right: 10%;
+        }
+
+        #fourth-div button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #close-button {
+            background-color: #f44336;
+            color: white;
+        }
+
+        #save-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #video-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 1);
+            /* White background */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #video-container iframe {
+            border: none;
+            width: 80%;
+            /* Adjust width as needed */
+            height: 80%;
+            /* Adjust height as needed */
+        }
+
+        #video-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: black;
+            color: white;
+            border: none;
+            font-size: 16px;
+            padding: 5px 10px;
+            z-index: 1001;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="first-div">
+        <button id="back-button"></button>
+        <div id="profile-text">Profile</div>
+    </div>
+
+    <div id="zero-div">
+        <div id="walkthrough-text">Website Walkthrough</div>
+        <button id="walkthrough-video"></button>
+    </div>
+
+    <div id="second-div">
+        <div id="select-bus-text">Select Default Bus</div>
+        <select id="bus-route-dropdown">
+            <option value="" disabled selected>Select a route</option>
+            <option value="route1">Route 1</option>
+            <option value="route2">Route 2</option>
+            <option value="route9">Route 9</option>
+            <option value="route21">Route 21</option>
+        </select>
+    </div>
+
+    <div id="third-div">
+        <div id="enter-busstop-details">Enter BusStop Details</div>
+        <div id="location-coordinates">
+            <input type="text" id="textDisplay" value="Enter location coordinates">
+            <img src="img/myLocation.svg" id="btnCurrentLocation" onclick="getCurrentLocation()" alt="Current Location">
+            <a href="#" onclick="showMap()"> <img src="img/map.svg" alt="Map"></a>
+        </div>
+    </div>
+
+    <div id="fourth-div">
+        <button id="close-button">Close</button>
+        <button id="save-button" onclick="saveDetails()">Save</button>
+    </div>
+
+    <div id="fifth-div">
+        <div id="query-text"> Any Query/Feedback ? </div>
+        <button id="mail-image"></button>
+    </div>
+
+    <div id="video-container">
+        <button id="video-close">Close</button>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/bhtDIswoDvo?si=LWC521plL4VocszQ"
+            title="YouTube video player" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        // Define the image URL for the walkthrough video button
+        const walkthroughVideoUrl = 'img/youtubeVideo.svg';
+
+        // Set the image URL to the walkthrough video button
+        const walkthroughVideoButton = document.getElementById('walkthrough-video');
+        walkthroughVideoButton.style.backgroundImage = `url(${walkthroughVideoUrl})`;
+
+        document.getElementById('walkthrough-video').addEventListener('click', function () {
+            document.body.style.backgroundColor = 'white';  // Change background color to white
+            document.getElementById('video-container').style.display = 'flex';
+        });
+
+        // Define the image URL for the mail button
+        const mailUrl = 'img/mail.svg';
+
+        // Set the image URL to the mail button
+        const mailButton = document.getElementById('mail-image');
+        mailButton.style.backgroundImage = `url(${mailUrl})`;
+
+        document.getElementById('mail-image').addEventListener('click', function () {
+            // Email address
+            const emailAddress = 'mlrit.whereismybus@gmail.com';
+
+            // Subject of the email (optional)
+            const subject = encodeURIComponent('Feedback or Query');
+
+            // Body of the email (optional)
+            const body = encodeURIComponent('Write your message here.');
+
+            // Construct the mailto link
+            const mailtoLink = `mailto:${emailAddress}?subject=${subject}&body=${body}`;
+
+            // Open the default email client
+            window.open(mailtoLink);
+        });
+
+
+        document.getElementById('video-close').addEventListener('click', function () {
+            // Get the iframe element containing the video
+            let iframe = document.querySelector('#video-container iframe');
+
+            // Pause the video and reset the source
+            let videoSrc = iframe.src;
+            iframe.src = videoSrc; // This resets the video and stops it
+
+            // Hide the video container
+            document.getElementById('video-container').style.display = 'none';
+
+            // Reset the background color of the body
+            document.body.style.backgroundColor = '';
+        });
+
+
+        // Define the image URL for the back button
+        const backButtonImageUrl = 'img/backArrow.svg';
+
+        // Set the image URL to the back button
+        const backButton = document.getElementById('back-button');
+        backButton.style.backgroundImage = `url(${backButtonImageUrl})`;
+
+        // JavaScript functions for location coordinates div
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError, { enableHighAccuracy: true });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function showPosition(position) {
+            const latitude = position.coords.latitude.toFixed(6);
+            const longitude = position.coords.longitude.toFixed(6);
+            document.getElementById("textDisplay").value = "[" + latitude + ", " + longitude + "]";
+        }
+
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        }
+
+        function showMap() {
+            // Display a white background
+            document.body.style.backgroundColor = 'white';
+
+            // Create an iframe element to load the map.html content
+            const iframe = document.createElement('iframe');
+            iframe.src = 'map.html';
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.position = 'absolute';
+            iframe.style.top = '0';
+            iframe.style.left = '0';
+            iframe.style.zIndex = '2';
+
+            // Append the iframe to the body
+            document.body.appendChild(iframe);
+
+            // Listen for messages from the iframe
+            window.addEventListener('message', function (event) {
+                if (event.data === 'closeMap') {
+                    document.body.removeChild(iframe);
+                    document.body.style.backgroundColor = ''; // Reset background color
+                } else if (event.data) {
+                    document.getElementById('textDisplay').value = event.data;
+                    document.body.style.backgroundColor = ''; // Reset background color
+                    document.body.removeChild(iframe); // Remove the iframe
+                }
+            });
+        }
+
+        function saveDetails() {
+            const busRoute = document.getElementById('bus-route-dropdown').value;
+            const locationCoordinates = document.getElementById('textDisplay').value;
+
+            if (!busRoute || !locationCoordinates || locationCoordinates === "Enter location coordinates") {
+                alert("Please select a bus route and enter location coordinates.");
+                return;
+            }
+
+            const cookieName = "busDetails";
+            const cookieValue = JSON.stringify({ busRoute: busRoute, locationCoordinates: locationCoordinates });
+            const cookieDays = 365;
+
+            setCookie(cookieName, cookieValue, cookieDays);
+            window.location.href = busRoute;
+        }
+
+        function setCookie(name, value, days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        function loadProfileDetails() {
+            const cookieName2 = "loginDone";
+            const loginDetails = getCookie(cookieName2);
+
+
+            const cookieName = "busDetails";
+            const busDetails = getCookie(cookieName);
+
+            if (busDetails) {
+                const { busRoute, locationCoordinates } = JSON.parse(busDetails);
+                document.getElementById('bus-route-dropdown').value = busRoute;
+                document.getElementById('textDisplay').value = locationCoordinates;
+            }
+
+
+        }
+
+        // Call loadProfileDetails when the page loads
+        window.onload = loadProfileDetails;
+
+        // Add event listener for the close button
+        document.getElementById('close-button').addEventListener('click', function () {
+            const busDetails = getCookie("busDetails");
+            if (!busDetails) {
+                alert("Please create profile !!");
+            } else {
+                const details = JSON.parse(busDetails);
+                window.location.href = details.busRoute;
+            }
+        });
+
+        // Add event listener for the close button
+        document.getElementById('back-button').addEventListener('click', function () {
+            const busDetails = getCookie("busDetails");
+            if (!busDetails) {
+                alert("Please create profile !!");
+            } else {
+                window.history.back(); // If busRoute is not defined, go back in history
+            }
+        });
+    </script>
+</body>
+
+</html>

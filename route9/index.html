@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route 9</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        #animation-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white; /* Change background to white */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Make sure it's on top */
+        }
+
+        #map-container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="animation-overlay">
+        <dotlottie-player id="lottie-player" src="../busAnimation.json" background="transparent" speed="1.2" style="width: 300px; height: 300px" direction="1" playMode="normal" autoplay></dotlottie-player>
+    </div>
+    <div id="map-container">
+        <iframe src="../route9/map.html" style="width: 100%; height: 100%; border: none;"></iframe>
+    </div>
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+    <script>
+        window.onload = function() {
+            const loginDoneCookie = getCookie("loginDone");
+            
+                const busDetailsCookie = getCookie("busDetails");
+                if (!busDetailsCookie) {
+                    window.location.href = "../profile.html";
+                }
+           
+        };
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        const lottiePlayer = document.getElementById('lottie-player');
+
+        lottiePlayer.addEventListener('complete', function() {
+            document.getElementById('animation-overlay').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restore scroll if necessary
+        });
+
+        window.addEventListener('message', function(event) {
+            if (event.data === 'reDirectToHomePage') {
+                window.location.href = '../fullMap.html';
+            } else if (event.data === 'reDirectToChangeBusPage') {
+                window.location.href = '../changeBus.html';
+            } else if (event.data === 'reDirectToSettingsPage') {
+                window.location.href = '../profile.html';
+            }
+        });
+    </script>
+</body>
+</html>

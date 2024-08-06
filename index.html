@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Where is my bus</title>
+    <style>
+        /* Your existing styles */
+        #institution,
+        #logo {
+            display: none;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+        }
+
+        #institution {
+            top: 7%;
+            /* Adjust the position as needed */
+        }
+
+        #institution img {
+            width: 65%;
+            /* Adjust the size as needed */
+            height: auto;
+        }
+
+        #logo img {
+            width: 100%;
+            /* Adjust the size as needed */
+            height: auto;
+        }
+
+        #logo {
+            top: 20%;
+            /* Adjust the position as needed */
+        }
+    </style>
+    <script>
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        window.onload = function () {
+            const cookieName = "loginDone";
+            const loginDetails = getCookie(cookieName);
+
+
+            const cookieName2 = "busDetails";
+            const busDetails = getCookie(cookieName2);
+            if (!busDetails) {
+                window.location.href = "profile.html";
+            } else {
+                // If cookie is present, log the defaultBus to console and redirect
+                const details = JSON.parse(busDetails);
+                const defaultBus = details.busRoute;
+                window.location.href = defaultBus;
+            }
+
+        };
+    </script>
+</head>
+
+<body>
+    <div id="institution">
+        <img src="img/institution.svg" alt="Institution Logo">
+    </div>
+    <div id="logo">
+        <img src="img/logoMain.svg" alt="Logo">
+    </div>
+</body>
+
+</html>

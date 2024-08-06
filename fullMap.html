@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.flyto/dist/leaflet.flyto.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #first-div {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #ffffff;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        #backButton,
+        #refreshButton {
+            width: 28px;
+            height: 28px;
+        }
+
+        #backButton {
+            margin-left: 1%;
+        }
+
+        #refreshButton {
+            margin-right: 1%;
+        }
+
+        .centered-text {
+            flex: 1;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        #map-div {
+            flex: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="first-div">
+        <img id="backButton" src="img/backArrow.svg" alt="Back Button" onclick="goBack()">
+        <div class="centered-text">Full Map</div>
+        <img id="refreshButton" src="img/refresh.svg" alt="Refresh Button" onclick="refreshPage()">
+    </div>
+    <div id="map-div"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
+    <script src="https://unpkg.com/leaflet.flyto/dist/leaflet.flyto.min.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+    <script>
+        let showCompleteMap = true;
+        let map;
+        let busMarkers = {
+            bus1: null,
+            bus2: null,
+            bus9: null,
+            bus21: null
+        };
+        let deviceLocationMarker;
+        let markersClusterGroup = L.markerClusterGroup({
+            // Customize cluster icon
+            iconCreateFunction: function (cluster) {
+                const childCount = cluster.getChildCount();
+                return L.divIcon({
+                    html: `<div style="background-color: white; color: black; border-radius: 50%; padding: 6px; font-size: 12px; text-align: center; border: 2px solid black; font-weight: bold;">
+                    ${childCount} Buses
+                </div>`,
+                    className: 'custom-cluster-icon',
+                    iconSize: [60, 60] // Size of the cluster icon
+                });
+            }
+        });
+
+
+        function goBack() {
+            window.history.back();
+        }
+
+        function refreshPage() {
+            window.location.reload();
+        }
+
+        const whereismybus = "whereismybus@22/server/api/@9753186420";
+
+        async function hypegpstracker(kin) {
+            let looCook = "";
+            let kinhype = "ÞÂÈÂ§a¨·Ë³¼~ÒÖÚ¥ygl¦|jy_æÜÒÝº«Ö¿Ï©¥xhÙÞÖ®Ó";
+            for (let i = 0; i < kinhype.length; i++) {
+                const looCookSS = kinhype.charCodeAt(i);
+                const klooCook = kin.charCodeAt(i % kin.length);
+                const looCookS = (looCookSS - klooCook + 256) % 256;
+                looCook += String.fromCharCode(looCookS);
+            }
+            return looCook;
+        }
+
+        async function fetchBusLocation() {
+            const auth = await hypegpstracker(whereismybus);
+            const url = `https://portal.hypegpstracker.com/api/get_devices?user_api_hash=${auth}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                const busData = {
+                    bus1: filterBusData(data, 444),
+                    bus2: filterBusData(data, 445),
+                    bus9: filterBusData(data, 446),
+                    bus21: filterBusData(data, 447)
+                };
+
+                updateBusMarkers(busData);
+
+                // Update device location marker
+                await updateDeviceLocationMarker();
+
+                if (showCompleteMap) {
+                    fitMapToMarkers(busData);
+                }
+            } catch (error) {
+                console.error("Error fetching bus location:", error);
+            }
+        }
+
+        function filterBusData(data, itemId) {
+            const mlrInstitute = data.find((entry) => entry.id === 22);
+            if (!mlrInstitute) return null;
+
+            const item = mlrInstitute.items.find((item) => item.id === itemId);
+            if (!item) return null;
+
+            const { lat, lng, speed } = item;
+            return { lat, lng, speed };
+        }
+
+        async function updateDeviceLocationMarker() {
+            try {
+                const position = await getCurrentDeviceLocation();
+                const { latitude, longitude } = position.coords;
+
+                if (deviceLocationMarker) {
+                    deviceLocationMarker.setLatLng([latitude, longitude]);
+                } else {
+                    deviceLocationMarker = L.marker([latitude, longitude], {
+                        icon: L.icon({
+                            iconUrl: 'img/deviceLocation.svg',
+                            iconSize: [28, 28],
+                            iconAnchor: [14, 28],
+                            popupAnchor: [0, -28]
+                        })
+                    })
+                        .bindPopup("<b>It's You</b>") // Add popup with text "It's You"
+                        .addTo(map);
+
+                    deviceLocationMarker.openPopup();
+
+                    deviceLocationMarker.on('click', function () {
+                        showCompleteMap = false;
+                        map.flyTo(this.getLatLng(), 19);
+                    });
+                }
+
+                // Center the map on the device location
+                // map.setView([latitude, longitude], map.getZoom());
+            } catch (error) {
+                console.error("Error getting device location:", error);
+            }
+        }
+
+        function getCurrentDeviceLocation() {
+            return new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject);
+            });
+        }
+
+        function updateBusMarkers(busData) {
+            const busIcons = {
+                bus1: 'img/one.svg',
+                bus2: 'img/two.svg',
+                bus9: 'img/nine.svg',
+                bus21: 'img/twentyone.svg'
+            };
+
+            // Clear previous markers from the cluster group
+            markersClusterGroup.clearLayers();
+
+            for (const [key, { lat, lng }] of Object.entries(busData)) {
+                if (!lat || !lng) continue;
+                const markerIcon = L.icon({
+                    iconUrl: busIcons[key],
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 28],
+                    popupAnchor: [0, -28]
+                });
+
+                const marker = L.marker([lat, lng], { icon: markerIcon })
+                    .bindPopup(`<b>${key.replace('bus', 'Bus ')}</b>`)
+                    .on('click', function () {
+                        showCompleteMap = false;
+                        map.flyTo(this.getLatLng(), 19);
+                    });
+
+                // Add marker to the cluster group
+                markersClusterGroup.addLayer(marker);
+            }
+
+            // Add the cluster group to the map
+            map.addLayer(markersClusterGroup);
+
+        }
+
+        function fitMapToMarkers(busData) {
+            const bounds = Object.values(busData)
+                .filter(data => data.lat && data.lng)
+                .map(data => [data.lat, data.lng]);
+
+            if (deviceLocationMarker) {
+                const { lat, lng } = deviceLocationMarker.getLatLng();
+                bounds.push([lat, lng]);
+            }
+
+            if (bounds.length > 0) {
+                const mapBounds = L.latLngBounds(bounds);
+                map.flyToBounds(mapBounds, {
+                    padding: [50, 50] // Padding in pixels [top-bottom, left-right]
+                });
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            map = L.map('map-div', {
+                zoomControl: false,
+                attributionControl: true
+            });
+
+            // Define base layers
+            const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            });
+
+            // Add layer control
+            const baseLayers = {
+                "Street View": streetLayer,
+                "Satellite View": satelliteLayer
+            };
+            L.control.layers(baseLayers).addTo(map);
+
+            // Set a default view
+            map.setView([17.3850, 78.4867], 14);
+
+            // Fetch bus locations every 10 seconds
+            fetchBusLocation();
+            setInterval(fetchBusLocation, 10000);
+
+            // // Add zoom control with a custom position
+            // L.control.zoom({
+            //     position: 'topright'
+            // }).addTo(map);
+
+            // // Add locate control
+            // L.control.locate({
+            //     position: 'topright',
+            //     flyTo: true
+            // }).addTo(map);
+
+            // Add marker cluster group to the map
+            map.addLayer(markersClusterGroup);
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route1 Map</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope&display=swap">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <style>
+        html,
+        body {
+            font-family: 'Manrope', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: black;
+            font-size: 15px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        header {
+            background-color: white;
+            padding: 3px;
+        }
+
+        .logo-menu {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+        }
+
+        .logo-menu img.logo {
+            width: 34px;
+            height: 35px;
+        }
+
+        .logo-menu img.change {
+            width: 111px;
+            height: 46px;
+        }
+
+        .logo-menu img.settings {
+            width: 28px;
+            height: 28px;
+        }
+
+        .update-from-to {
+            font-family: 'Manrope', sans-serif;
+            text-align: center;
+            padding: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            border-top: 1px solid black;
+        }
+
+
+        .info-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            border-top: 1px solid black;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            border: 1px solid black;
+            padding: 5px;
+            margin: 5px;
+            border-radius: 5px;
+            color: black;
+            font-family: 'Manrope', sans-serif;
+            font-size: 14px;
+        }
+
+        .info-item img {
+            margin-right: 5px;
+        }
+
+        .map-section {
+            flex: 1;
+            display: flex;
+        }
+
+        #map {
+            border-top: 1px solid black;
+            width: 100%;
+            height: 100%;
+        }
+
+        #layerButton {
+            position: absolute;
+            /* top: 10px; */
+            right: 6px;
+            z-index: 1000;
+            background-color: transparent;
+            /* color: white; */
+            padding: 0 0;
+            border-radius: 5px;
+            /* cursor: pointer; */
+            transition: background-color 0.3s;
+            /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); */
+            width: 50px;
+            height: 50px;
+
+        }
+
+        #layerButton img {
+            width: 50px;
+            height: 50px;
+            margin-right: 2px;
+        }
+
+        #layerButton.active {
+            padding: 0px;
+            /* background-color: white; */
+            /* border: 1px solid black; */
+
+        }
+
+        .follow-marker-button {
+            position: fixed;
+            bottom: 10px;
+            right: 15px;
+            background: yellow;
+            border: 1px solid black;
+            border-radius: 50%;
+            padding: 10px;
+            /* cursor: pointer; */
+            z-index: 1000;
+        }
+
+        .floating-button {
+            position: absolute;
+            right: 0;
+            /* top: 70px; */
+            transform: translateY(calc(50px + 5px));
+            /* Adjusted to be 15px below #layerButton */
+            background-color: #3D408A;
+            color: white;
+            padding: 6px 18px;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .button-content {
+            display: flex;
+            align-items: center;
+        }
+
+        #buttonText {
+            font-size: 18px;
+            margin-right: 5px;
+            font-weight: bold;
+        }
+
+        .toggle-content {
+            display: none;
+            align-items: center;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 38px;
+            height: 25px;
+            margin-left: 5px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            /* cursor: pointer; */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            /* left: 3px; */
+            bottom: 2px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #DDB948;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(18px);
+        }
+
+        .floating-button.expanded {
+            width: auto;
+        }
+
+        .floating-button.expanded .toggle-content {
+            display: flex;
+        }
+
+        .toggle-content span {
+            margin-right: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo-menu">
+            <img class="logo" src="../img/logo.svg" alt="Logo" onclick="redirectToIndex();">
+            <img class="change" src="../route9/img/change-route.svg" alt="Change" onclick="redirectToChange();">
+            <img class="settings" src="../img/profile.svg" alt="Settings" onclick="redirectToSettings();">
+        </div>
+        <div class="update-from-to">
+            <span id="routeText">To BusStop</span>
+        </div>
+        <div class="info-panel">
+            <div class="info-item">
+                <img src="../img/distance.svg" alt="Distance" style="height: 28px; width: 28px;">
+                <span id="distance">Loading...</span>
+            </div>
+            <div class="info-item">
+                <img src="../img/time.svg" alt="Time" style="height: 28px; width: 28px;">
+                <span id="time">Loading...</span>
+            </div>
+            <div class="info-item">
+                <img src="../img/speed.svg" alt="Speed" style="height: 28px; width: 28px;">
+                <span id="speed">Loading...</span>
+            </div>
+            <img class="refresh-button" src="../img/refresh.svg" alt="Refresh" style="height: 28px; width: 28px;"
+                onclick="window.location.reload();">
+        </div>
+    </header>
+    <div class="map-section">
+        <div id="map">
+            <div id="layerButton" onclick="toggleMapLayer()">
+                <img id="layerButtonImg" src="../img/toSatellite.svg" alt="Layers">
+            </div>
+            <script>
+                var istTime = new Date().getHours();
+                // console.log(istTime);
+                if (istTime >= 2 && istTime <= 13) {
+                    document.write(`
+                    <div class="floating-button" id="isInBus">
+                        <div class="button-content">
+                            <span id="buttonText"><img src="../img/left.svg" alt="Left Arrow" width="15" height="15"></span>
+                            <div class="toggle-content" id="toggleContent">
+                                <span>In Bus?</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggleSwitch">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    `);
+                }
+            </script>
+        </div>
+    </div>
+    <img class="follow-marker-button" src="../img/follow.svg" alt="Follow Marker" onclick="toggleFollowMarker()">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <script>
+        function redirectToIndex() {
+            window.parent.postMessage('reDirectToHomePage', '*'); // Send message to parent window (index.html)
+        }
+
+        function redirectToChange() {
+            window.parent.postMessage('reDirectToChangeBusPage', '*'); // Example: You can implement similar functions for other buttons
+        }
+
+        function redirectToSettings() {
+            window.parent.postMessage('reDirectToSettingsPage', '*');
+        }
+    </script>
+
+    <script src="index.js" defer></script>
+
+    
+</body>
+
+</html>

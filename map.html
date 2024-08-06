@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Stop Locator</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        #search-input {
+            width: 70%;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid black;
+            border-radius: 5px;
+        }
+
+        #search-and-manage {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            position: absolute;
+            top: 3%;
+            width: 100%;
+            z-index: 5;
+            transition: top 0.5s;
+        }
+
+        #back-arrow {
+            height: 23px;
+            width: 23px;
+        }
+
+        #clear-button {
+            margin-right: 5%;
+            height: 28px;
+            width: 28px;
+        }
+
+        #coordinates-save-container {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            /* Center items horizontally */
+            align-items: center;
+            /* Center items vertically */
+            padding: 5px;
+            bottom: 2%;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #coordinates {
+            padding: 10px;
+            font-size: 16px;
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 5px;
+            margin-left: 10px;
+            /* Adjust margin as needed */
+            margin-right: 10px;
+            /* Adjust margin as needed */
+        }
+
+        #save-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: white;
+            color: black;
+            border: 1px solid black; /* Adding 1px black border */
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .gm-style .gm-style-cc,
+        .gmnoprint .gmnoprint {
+            display: none !important;
+        }
+
+        .gm-style .gm-style-mtc,
+        .gm-style .gm-style-mtc div,
+        .gm-style .gm-style-mtc span {
+            display: none !important;
+        }
+
+        #buttons-container {
+            position: absolute;
+            bottom: 25%;
+            right: 0%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 5;
+        }
+
+        #buttons-container img {
+            height: 32px;
+            width: 32px;
+            margin-bottom: 10px;
+            margin-right: 10px;
+        }
+
+        #my-location-button {
+            background-color: white;
+            border-radius: 5px;
+        }
+
+        #map {
+            background-color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="search-and-manage">
+        <img id="back-arrow" src="img/backArrow.svg" alt="Back Arrow">
+        <input id="search-input" type="text" placeholder="Search for places...">
+        <img id="clear-button" src="img/clear_street.svg" alt="Clear">
+    </div>
+    <div id="map"></div>
+    <div id="coordinates-save-container">
+        <div id="coordinates"></div>
+        <button id="save-button">Save</button>
+    </div>
+    <div id="buttons-container">
+        <img id="refreshButton" src="img/refresh_street.svg" alt="refresh">
+        <img id="my-location-button" src="img/myLocation.svg" alt="My Location">
+        <img id="toggleButton" src="img/toSatellite.svg" alt="Satellite View">
+    </div>
+    <script>
+        let map;
+        let marker;
+
+        document.getElementById('back-arrow').addEventListener('click', function () {
+            window.parent.postMessage('closeMap', '*');
+        });
+
+        document.getElementById('clear-button').addEventListener('click', function () {
+            document.getElementById('search-input').value = '';
+        });
+
+        document.getElementById('refreshButton').addEventListener('click', function () {
+            // Remove the map instance and reinitialize it
+            initMap();
+            document.getElementById('toggleButton').src = 'img/toSatellite.svg';
+            document.getElementById('back-arrow').src = 'img/backArrow_street.svg';
+            document.getElementById('clear-button').src = 'img/clear_street.svg';
+            document.getElementById('refreshButton').src = 'img/refresh_street.svg';
+        });
+
+        function updateCoordinates(lat, lng) {
+            lat = lat.toFixed(6);
+            lng = lng.toFixed(6);
+            document.getElementById('coordinates').innerText = `[ ${lat} , ${lng}]`;
+        }
+
+        function initMap() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        var pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        updateCoordinates(pos.lat, pos.lng);
+
+                        map = new google.maps.Map(document.getElementById('map'), {
+                            center: pos,
+                            zoom: 18,
+                            fullscreenControl: false,
+                            gestureHandling: 'greedy' // Enables single-finger map movement
+                        });
+
+                        marker = new google.maps.Marker({
+                            position: pos,
+                            map: map,
+                            draggable: true,
+                            icon: {
+                                url: 'img/studentStop.svg',
+                                scaledSize: new google.maps.Size(50, 50)
+                            }
+                        });
+
+                        marker.addListener('dragend', function (event) {
+                            updateCoordinates(event.latLng.lat(), event.latLng.lng());
+                        });
+
+                        map.addListener('click', function (event) {
+                            marker.setPosition(event.latLng);
+                            updateCoordinates(event.latLng.lat(), event.latLng.lng());
+                        });
+
+                        marker.addListener('click', function () {
+                            map.setCenter(marker.getPosition());
+                            map.setZoom(18);
+                        });
+
+                        initAutocomplete();
+
+                        // Listen for the visibility change of the street view
+                        map.getStreetView().addListener('visible_changed', function () {
+                            if (map.getStreetView().getVisible()) {
+                                document.getElementById('search-and-manage').style.top = '10%';
+                                document.getElementById('back-arrow').src = 'img/backArrow_satellite.svg';
+                                document.getElementById('clear-button').src = 'img/clear_satellite.svg';
+                            } else {
+                                document.getElementById('search-and-manage').style.top = '3%';
+                                document.getElementById('back-arrow').src = 'img/backArrow_street.svg';
+                                document.getElementById('clear-button').src = 'img/clear_street.svg';
+                            }
+                        });
+                    },
+                    function () {
+                        handleLocationError(true, map.getCenter());
+                    },
+                    {
+                        // enableHighAccuracy: true,
+                        // timeout: 2000,
+                        // maximumAge: 0
+                    }
+                );
+            } else {
+                handleLocationError(false, map.getCenter());
+            }
+        }
+
+        function initAutocomplete() {
+            const input = document.getElementById('search-input');
+            const autocomplete = new google.maps.places.Autocomplete(input);
+            autocomplete.bindTo('bounds', map);
+
+            autocomplete.addListener('place_changed', function () {
+                const place = autocomplete.getPlace();
+                if (!place.geometry) {
+                    alert("No details available for input: '" + place.name + "'");
+                    return;
+                }
+
+                map.setCenter(place.geometry.location);
+                map.setZoom(18);
+                marker.setPosition(place.geometry.location);
+                updateCoordinates(place.geometry.location.lat(), place.geometry.location.lng());
+            });
+        }
+
+        function handleLocationError(browserHasGeolocation, pos) {
+            alert(browserHasGeolocation ? 'Error: The Geolocation service failed.' : 'Error: Your browser doesn\'t support geolocation.');
+        }
+
+        document.getElementById('save-button').addEventListener('click', function () {
+            const coordinatesElement = document.getElementById('coordinates').innerText;
+            window.parent.postMessage(coordinatesElement, '*');
+
+            const saveButton = document.getElementById('save-button');
+            saveButton.innerText = "Saved!";
+            setTimeout(() => {
+                saveButton.innerText = "Save";
+            }, 2000);
+        });
+
+        window.addEventListener('message', function (event) {
+            console.log('Coordinates received:', event.data);
+        });
+
+        document.getElementById('my-location-button').addEventListener('click', function () {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    map.panTo(pos);
+                    marker.setPosition(pos);
+                    map.setZoom(18);
+                }, function (error) {
+                    handleLocationError(true, map.getCenter(), error.message);
+                }, {
+                    enableHighAccuracy: true
+                });
+            } else {
+                handleLocationError(false, map.getCenter());
+            }
+        });
+
+        let flag = false;
+        document.getElementById('toggleButton').addEventListener('click', function () {
+            if (flag === false) {
+                map.setMapTypeId(google.maps.MapTypeId.HYBRID);
+                document.getElementById('toggleButton').src = 'img/toStreet.svg';
+                document.getElementById('back-arrow').src = 'img/backArrow_satellite.svg';
+                document.getElementById('clear-button').src = 'img/clear_satellite.svg';
+                document.getElementById('refreshButton').src = 'img/refresh_satellite.svg';
+                flag = true;
+            } else {
+                map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+                document.getElementById('toggleButton').src = 'img/toSatellite.svg';
+                document.getElementById('back-arrow').src = 'img/backArrow_street.svg';
+                document.getElementById('clear-button').src = 'img/clear_street.svg';
+                document.getElementById('refreshButton').src = 'img/refresh_street.svg';
+                flag = false;
+            }
+        });
+
+        window.onload = initMap;
+    </script>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDKquK0_Fe8Wr51YDrxghVdxebwHqG3ik4&libraries=places&callback=initMap"
+        async defer></script>
+</body>
+
+</html>
